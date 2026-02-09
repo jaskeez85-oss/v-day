@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Valentine 💖</title>
+
+<style>
+* {
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont;
+}
+
+body {
+  margin: 0;
+  height: 100vh;
+  overflow: hidden;
+  background-image: url("assets/bg.jpg");
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Glassmorphism Card */
+.card {
+  width: 90%;
+  max-width: 420px;
+  padding: 32px 22px;
+  text-align: center;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255,255,255,0.35);
+  box-shadow: 0 25px 45px rgba(0,0,0,0.35);
+  color: white;
+  position: relative;
+}
+
+h1 {
+  font-size: 1.9rem;
+  margin-bottom: 32px;
+  text-shadow: 2px 2px 10px rgba(0,0,0,0.4);
+}
+
+.buttons {
+  position: relative;
+  height: 140px;
+}
+
+button {
+  position: absolute;
+  padding: 14px 34px;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 40px;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* YES button */
+#yes {
+  background: #00c853;
+  color: white;
+  left: 12%;
+}
+
+/* NO button – hard disabled, lives outside the card */
+#no {
+  position: fixed;           /* relative to viewport, NOT the card */
+  padding: 14px 34px;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 40px;
+  cursor: pointer;
+  user-select: none;
+  background: #d50000;
+  color: white;
+  pointer-events: none;      /* impossible to click */
+  left: 60%;
+  top: 55%;
+  z-index: 9999;             /* always visible on top */
+}
+
+/* Success screen */
+.success {
+  display: none;
+  flex-direction: column;
+  gap: 22px;
+  animation: pop 0.5s ease forwards;
+}
+
+@keyframes pop {
+  from { transform: scale(0.85); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.success h2 {
+  font-size: 1.9rem;
+  text-shadow: 3px 3px 12px black;
+}
+
+.success img {
+  width: 200px;
+  max-width: 100%;
+  border-radius: 18px;
+  display: block;
+  margin: 0 auto; /* HARD CENTER */
+}
+
+.confetti {
+  position: fixed;
+  top: -10px;
+  font-size: 20px;
+  pointer-events: none;
+  animation: fall linear forwards;
+  z-index: 9999;
+}
+
+@keyframes fall {
+  to {
+    transform: translateY(110vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<audio id="music" src="assets/music.mp3"></audio>
+
+<div class="card" id="main">
+  <h1>DHRITI.<br>Will you be my Valentine? 💖</h1>
+
+  <div class="buttons">
+    <button id="yes">YES 💕</button>
+  </div>
+</div>
+
+<!-- NO button lives OUTSIDE the card so position:fixed works against the viewport -->
+<button id="no">NO 💔</button>
+
+<div class="card success" id="success">
+  <h2>I KNEW YOU LOVE ME 💘</h2>
+  <img src="assets/dance.gif" alt="Dance">
+</div>
+
+<script>
+const noBtn = document.getElementById("no");
+const yesBtn = document.getElementById("yes");
+const main = document.getElementById("main");
+const success = document.getElementById("success");
+const music = document.getElementById("music");
+
+function moveNoButton() {
+  const padding = 20;
+
+  const maxX = window.innerWidth - noBtn.offsetWidth - padding;
+  const maxY = window.innerHeight - noBtn.offsetHeight - padding;
+
+  const x = padding + Math.random() * (maxX - padding);
+  const y = padding + Math.random() * (maxY - padding);
+
+  noBtn.style.left = x + "px";
+  noBtn.style.top = y + "px";
+}
+
+/* Desktop: move when cursor comes near */
+document.addEventListener("mousemove", (e) => {
+  const rect = noBtn.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+
+  if (Math.hypot(e.clientX - cx, e.clientY - cy) < 120) {
+    moveNoButton();
+  }
+});
+
+/* Mobile: move on any touch */
+document.addEventListener("touchstart", moveNoButton, {
+  passive: true
+});
+
+function launchConfetti() {
+  const emojis = ["🎉", "💖", "💘", "✨", "💕"];
+
+  for (let i = 0; i < 50; i++) {
+    const confetti = document.createElement("div");
+    confetti.className = "confetti";
+    confetti.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+
+    confetti.style.left = Math.random() * 100 + "vw";
+    confetti.style.fontSize = 16 + Math.random() * 20 + "px";
+    confetti.style.animationDuration = 2 + Math.random() * 3 + "s";
+
+    document.body.appendChild(confetti);
+
+    // cleanup
+    setTimeout(() => {
+      confetti.remove();
+    }, 5000);
+  }
+}
+
+/* YES logic */
+yesBtn.addEventListener("click", () => {
+  main.style.display = "none";
+  noBtn.style.display = "none";  /* hide the NO button */
+  success.style.display = "flex";
+  music.play();
+  launchConfetti();
+});
+</script>
+
+</body>
+</html>
